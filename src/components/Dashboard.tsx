@@ -6,9 +6,11 @@ import { useAuth } from "../context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import PatientList from "./patients/PatientList";
 import AppointmentList from "./appointments/AppointmentList";
+import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
-  const { currentUser } = useAuth();
+  const { currentUser, hasRole } = useAuth();
   const [patientCount, setPatientCount] = useState(0);
   const [appointmentCount, setAppointmentCount] = useState(0);
   const [todayAppointments, setTodayAppointments] = useState(0);
@@ -46,11 +48,30 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Welcome, {currentUser?.name}</h2>
-        <p className="text-muted-foreground">
-          Here's an overview of your healthcare practice
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Welcome, {currentUser?.name}</h2>
+          <p className="text-muted-foreground">
+            Here's an overview of your healthcare practice
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {hasRole(['admin', 'superadmin', 'doctor']) && (
+            <Button variant="outline" asChild>
+              <Link to="/analytics">View Analytics</Link>
+            </Button>
+          )}
+          {hasRole(['admin', 'superadmin']) && (
+            <>
+              <Button variant="outline" asChild>
+                <Link to="/users">Manage Users</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/settings">System Settings</Link>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-3">

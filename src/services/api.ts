@@ -147,4 +147,48 @@ export const blogService = {
   }
 };
 
+// User management services
+export const userService = {
+  getAllUsers: async () => {
+    const response = await api.get('/api/users');
+    return response.data;
+  },
+  getUserById: async (id: number) => {
+    const response = await api.get(`/api/users/${id}`);
+    return response.data;
+  },
+  createUser: async (userData: any) => {
+    const response = await api.post('/api/users', userData);
+    return response.data;
+  },
+  updateUser: async (id: number, userData: any) => {
+    const response = await api.put(`/api/users/${id}`, userData);
+    return response.data;
+  },
+  deleteUser: async (id: number) => {
+    const response = await api.delete(`/api/users/${id}`);
+    return response.data;
+  }
+};
+
+// System settings services
+export const settingsService = {
+  getSettings: async () => {
+    const response = await api.get('/api/settings');
+    return response.data;
+  },
+  updateSettings: async (settings: any) => {
+    const response = await api.put('/api/settings', settings);
+    return response.data;
+  }
+};
+
+// Analytics services
+export const analyticsService = {
+  getAnalytics: async () => {
+    const response = await api.get('/api/analytics');
+    return response.data;
+  }
+};
+
 export default api;
