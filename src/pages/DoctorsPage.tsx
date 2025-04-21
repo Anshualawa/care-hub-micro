@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { doctorService } from '../services/api';
@@ -17,7 +17,23 @@ export default function DoctorsPage() {
   const { data: doctors, isLoading, error } = useQuery({
     queryKey: ['doctors'],
     queryFn: doctorService.getAllDoctors,
+    retry: false, // Prevent multiple retries that could cause render loops
+    onError: (err) => {
+      // Handle error in onError callback instead of during render
+      console.error('Failed to load doctors:', err);
+    }
   });
+
+  // Use useEffect to show toast on error
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load doctors. API may not be available.",
+      });
+    }
+  }, [error, toast]);
 
   if (isLoading) {
     return (
@@ -29,18 +45,18 @@ export default function DoctorsPage() {
     );
   }
 
+  // Handle error state without calling toast during render
   if (error) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Failed to load doctors",
-    });
-    
     return (
       <Layout>
         <div className="text-center py-10">
           <h2 className="text-xl font-bold">Error loading doctors</h2>
-          <p className="text-muted-foreground">Please try again later</p>
+          <p className="text-muted-foreground">The doctors API endpoint may not be available.</p>
+          <div className="mt-4">
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
         </div>
       </Layout>
     );
@@ -105,7 +121,7 @@ export default function DoctorsPage() {
           <div className="text-center py-16">
             <h2 className="text-xl font-semibold mb-2">No doctors found</h2>
             <p className="text-muted-foreground">
-              Our doctor directory is currently being updated.
+              Our doctor directory is currently being updated or the API may not be available.
             </p>
           </div>
         )}
