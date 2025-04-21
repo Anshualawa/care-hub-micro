@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -269,14 +268,43 @@ func getAppointment(c *gin.Context) {
 }
 
 func createAppointment(c *gin.Context) {
-	var newAppointment Appointment
-	if err := c.ShouldBindJSON(&newAppointment); err != nil {
+	var appointmentData struct {
+		PatientID   int    `json:"patientId"`
+		DateTime    string `json:"dateTime"` // Accept as string initially
+		Description string `json:"description"`
+		Status      string `json:"status"`
+		Doctor      string `json:"doctor"`
+	}
+
+	if err := c.ShouldBindJSON(&appointmentData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Parse the datetime string into a time.Time
+	dateTime, err := time.Parse("2006-01-02T15:04", appointmentData.DateTime)
+	if err != nil {
+		// If that fails, try with seconds
+		dateTime, err = time.Parse("2006-01-02T15:04:05", appointmentData.DateTime)
+		if err != nil {
+			// If that fails too, try RFC3339 format
+			dateTime, err = time.Parse(time.RFC3339, appointmentData.DateTime)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid datetime format: " + err.Error()})
+				return
+			}
+		}
+	}
+
 	// Generate new ID
-	newAppointment.ID = len(appointments) + 1
+	newAppointment := Appointment{
+		ID:          len(appointments) + 1,
+		PatientID:   appointmentData.PatientID,
+		DateTime:    dateTime,
+		Description: appointmentData.Description,
+		Status:      appointmentData.Status,
+		Doctor:      appointmentData.Doctor,
+	}
 
 	appointments = append(appointments, newAppointment)
 	c.JSON(http.StatusCreated, newAppointment)
@@ -289,17 +317,42 @@ func updateAppointment(c *gin.Context) {
 		return
 	}
 
-	var updatedAppointment Appointment
-	if err := c.ShouldBindJSON(&updatedAppointment); err != nil {
+	var appointmentData struct {
+		PatientID   int    `json:"patientId"`
+		DateTime    string `json:"dateTime"` // Accept as string initially
+		Description string `json:"description"`
+		Status      string `json:"status"`
+		Doctor      string `json:"doctor"`
+	}
+
+	if err := c.ShouldBindJSON(&appointmentData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Parse the datetime string into a time.Time
+	dateTime, err := time.Parse("2006-01-02T15:04", appointmentData.DateTime)
+	if err != nil {
+		// If that fails, try with seconds
+		dateTime, err = time.Parse("2006-01-02T15:04:05", appointmentData.DateTime)
+		if err != nil {
+			// If that fails too, try RFC3339 format
+			dateTime, err = time.Parse(time.RFC3339, appointmentData.DateTime)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid datetime format: " + err.Error()})
+				return
+			}
+		}
+	}
+
 	for i, appointment := range appointments {
 		if appointment.ID == id {
-			updatedAppointment.ID = id
-			appointments[i] = updatedAppointment
-			c.JSON(http.StatusOK, updatedAppointment)
+			appointments[i].PatientID = appointmentData.PatientID
+			appointments[i].DateTime = dateTime
+			appointments[i].Description = appointmentData.Description
+			appointments[i].Status = appointmentData.Status
+			appointments[i].Doctor = appointmentData.Doctor
+			c.JSON(http.StatusOK, appointments[i])
 			return
 		}
 	}
