@@ -7,12 +7,14 @@ interface RoleBasedRouteProps {
   children: React.ReactNode;
   allowedRoles: string[];
   redirectPath?: string;
+  requireAuth?: boolean;
 }
 
 export default function RoleBasedRoute({ 
   children, 
   allowedRoles, 
-  redirectPath = '/unauthorized'
+  redirectPath = '/unauthorized',
+  requireAuth = true
 }: RoleBasedRouteProps) {
   const { isAuthenticated, hasRole, loading } = useAuth();
 
@@ -20,11 +22,13 @@ export default function RoleBasedRoute({
     return <div className="flex justify-center p-8">Loading...</div>;
   }
 
-  if (!isAuthenticated) {
+  // If authentication is required and user is not authenticated
+  if (requireAuth && !isAuthenticated) {
     return <Navigate to="/login" />;
   }
 
-  if (!hasRole(allowedRoles)) {
+  // If user doesn't have the required role
+  if (requireAuth && !hasRole(allowedRoles)) {
     return <Navigate to={redirectPath} />;
   }
 

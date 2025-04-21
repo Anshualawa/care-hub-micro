@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8090';
@@ -100,6 +99,50 @@ export const healthMetricService = {
   },
   recordMetric: async (patientId: number, metric: any) => {
     const response = await api.post(`/api/patients/${patientId}/metrics`, metric);
+    return response.data;
+  }
+};
+
+// Doctor services
+export const doctorService = {
+  getAllDoctors: async () => {
+    const response = await api.get('/api/doctors');
+    return response.data;
+  },
+  getDoctorById: async (id: number) => {
+    const response = await api.get(`/api/doctors/${id}`);
+    return response.data;
+  },
+  updateDoctorProfile: async (id: number, profileData: any) => {
+    const response = await api.put(`/api/doctors/${id}`, profileData);
+    return response.data;
+  },
+};
+
+// Blog services
+export const blogService = {
+  getAllBlogs: async () => {
+    const response = await api.get('/api/blogs');
+    return response.data;
+  },
+  getBlogById: async (id: number) => {
+    const response = await api.get(`/api/blogs/${id}`);
+    return response.data;
+  },
+  getBlogsByAuthor: async (authorId: number) => {
+    const response = await api.get(`/api/blogs?authorId=${authorId}`);
+    return response.data;
+  },
+  createBlog: async (blogData: any) => {
+    const response = await api.post('/api/blogs', blogData);
+    return response.data;
+  },
+  updateBlog: async (id: number, blogData: any) => {
+    const response = await api.put(`/api/blogs/${id}`, blogData);
+    return response.data;
+  },
+  deleteBlog: async (id: number) => {
+    const response = await api.delete(`/api/blogs/${id}`);
     return response.data;
   }
 };

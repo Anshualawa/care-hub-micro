@@ -11,6 +11,11 @@ import DashboardPage from "./pages/DashboardPage";
 import PatientsPage from "./pages/PatientsPage";
 import AppointmentsPage from "./pages/AppointmentsPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import DoctorsPage from "./pages/DoctorsPage";
+import DoctorPortfolioPage from "./pages/DoctorPortfolioPage";
+import BlogsPage from "./pages/BlogsPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
+import BlogFormPage from "./pages/BlogFormPage";
 import { AuthProvider } from "./context/AuthContext";
 import RoleBasedRoute from "./components/RoleBasedRoute";
 
@@ -40,6 +45,26 @@ const App = () => (
             
             {/* Appointments - accessible by all authenticated users */}
             <Route path="/appointments" element={<AppointmentsPage />} />
+            
+            {/* Doctors - accessible by anyone */}
+            <Route path="/doctors" element={<DoctorsPage />} />
+            <Route path="/doctors/:doctorId" element={<DoctorPortfolioPage />} />
+            
+            {/* Blogs - accessible by anyone for viewing */}
+            <Route path="/blogs" element={<BlogsPage />} />
+            <Route path="/blogs/:blogId" element={<BlogDetailPage />} />
+            
+            {/* Blog creation and editing - accessible to doctors, admin, superadmin */}
+            <Route path="/blogs/new" element={
+              <RoleBasedRoute allowedRoles={['admin', 'superadmin', 'doctor']}>
+                <BlogFormPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/blogs/edit/:blogId" element={
+              <RoleBasedRoute allowedRoles={['admin', 'superadmin', 'doctor']}>
+                <BlogFormPage />
+              </RoleBasedRoute>
+            } />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -9,6 +9,11 @@ interface User {
   email?: string;
   phone?: string;
   department?: string;
+  specialization?: string;
+  bio?: string;
+  education?: string[];
+  experience?: string[];
+  profileImage?: string;
 }
 
 interface AuthContextType {
