@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { doctorService } from '../services/api';
@@ -11,49 +11,88 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { User } from 'lucide-react';
 
+// Mock data to use when API is unavailable
+const MOCK_DOCTORS = [
+  {
+    id: 1,
+    name: "Dr. Jane Smith",
+    specialization: "Cardiology",
+    department: "Cardiology",
+    bio: "Dr. Smith is a board-certified cardiologist with over 15 years of experience in treating heart conditions.",
+    email: "jane.smith@carehub.com",
+    phone: "555-123-4567",
+    education: ["MD, Harvard Medical School", "Residency, Mayo Clinic"],
+    experience: ["Senior Cardiologist, Mayo Clinic (2015-2020)", "Chief of Cardiology, CareHub Hospital (2020-Present)"],
+  },
+  {
+    id: 2,
+    name: "Dr. Robert Chen",
+    specialization: "Neurology",
+    department: "Neurology",
+    bio: "Dr. Chen specializes in neurological disorders and has pioneered several treatment approaches for chronic conditions.",
+    email: "robert.chen@carehub.com",
+    phone: "555-234-5678",
+    education: ["MD, Johns Hopkins University", "Fellowship, Cleveland Clinic"],
+    experience: ["Neurologist, Cleveland Clinic (2013-2018)", "Senior Neurologist, CareHub Hospital (2018-Present)"],
+    profileImage: "https://randomuser.me/api/portraits/men/32.jpg"
+  },
+  {
+    id: 3,
+    name: "Dr. Maria Rodriguez",
+    specialization: "Pediatrics",
+    department: "Pediatrics",
+    bio: "Dr. Rodriguez has dedicated her career to children's health and is beloved by her young patients for her gentle approach.",
+    email: "maria.rodriguez@carehub.com",
+    phone: "555-345-6789",
+    education: ["MD, Stanford University", "Residency, Children's Hospital of Philadelphia"],
+    experience: ["Pediatrician, Boston Children's Hospital (2016-2021)", "Lead Pediatrician, CareHub Hospital (2021-Present)"],
+    profileImage: "https://randomuser.me/api/portraits/women/45.jpg"
+  },
+  {
+    id: 4,
+    name: "Dr. James Wilson",
+    specialization: "Orthopedic Surgery",
+    department: "Orthopedics",
+    bio: "Dr. Wilson is an orthopedic surgeon specializing in sports injuries and joint replacements.",
+    email: "james.wilson@carehub.com",
+    phone: "555-456-7890",
+    education: ["MD, University of Michigan", "Orthopedic Fellowship, Hospital for Special Surgery"],
+    experience: ["Orthopedic Surgeon, UCSF Medical Center (2012-2019)", "Chief of Orthopedics, CareHub Hospital (2019-Present)"],
+  }
+];
+
 export default function DoctorsPage() {
   const { toast } = useToast();
+  const [useMockData, setUseMockData] = useState(false);
   
-  const { data: doctors, isLoading, error } = useQuery({
+  const { data: apiDoctors, isLoading, error } = useQuery({
     queryKey: ['doctors'],
     queryFn: doctorService.getAllDoctors,
-    retry: false, // Prevent multiple retries that could cause render loops
+    retry: 1, // Only retry once
+    enabled: !useMockData, // Only run query if we're not using mock data
   });
 
-  // Use useEffect to show toast on error
+  // Use mock data if API fails
+  const doctors = useMockData ? MOCK_DOCTORS : apiDoctors;
+
+  // Handle API error and switch to mock data
   useEffect(() => {
     if (error) {
       console.error('Failed to load doctors:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to load doctors. API may not be available.",
+        description: "Failed to load doctors. Using demo data instead.",
       });
+      setUseMockData(true);
     }
   }, [error, toast]);
 
-  if (isLoading) {
+  if (isLoading && !useMockData) {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
           <div className="animate-pulse text-xl">Loading doctors...</div>
-        </div>
-      </Layout>
-    );
-  }
-
-  // Handle error state without calling toast during render
-  if (error) {
-    return (
-      <Layout>
-        <div className="text-center py-10">
-          <h2 className="text-xl font-bold">Error loading doctors</h2>
-          <p className="text-muted-foreground">The doctors API endpoint may not be available.</p>
-          <div className="mt-4">
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              Try Again
-            </Button>
-          </div>
         </div>
       </Layout>
     );
@@ -68,6 +107,13 @@ export default function DoctorsPage() {
             Meet our highly qualified and experienced medical professionals dedicated to 
             providing the best healthcare services at CareHub Hospital.
           </p>
+          {useMockData && (
+            <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded-md inline-block">
+              <p className="text-yellow-700 text-sm">
+                Demo Mode: Displaying example doctors data. API is not available.
+              </p>
+            </div>
+          )}
         </div>
         
         {doctors && doctors.length > 0 ? (
