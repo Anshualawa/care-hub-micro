@@ -6,6 +6,9 @@ interface User {
   id: number;
   name: string;
   role: string;
+  email?: string;
+  phone?: string;
+  department?: string;
 }
 
 interface AuthContextType {
@@ -14,6 +17,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   isAuthenticated: boolean;
+  hasRole: (roles: string | string[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,6 +26,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => ({}),
   logout: () => {},
   isAuthenticated: false,
+  hasRole: () => false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -51,12 +56,24 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     setCurrentUser(null);
   };
 
+  // Helper function to check if user has specific role(s)
+  const hasRole = (roles: string | string[]) => {
+    if (!currentUser) return false;
+    
+    if (typeof roles === 'string') {
+      return currentUser.role === roles;
+    }
+    
+    return roles.includes(currentUser.role);
+  };
+
   const value = {
     currentUser,
     loading,
     login,
     logout,
     isAuthenticated: !!currentUser,
+    hasRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

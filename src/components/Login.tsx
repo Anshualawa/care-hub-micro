@@ -5,6 +5,8 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "./ui/use-toast";
+import { Alert, AlertDescription } from "./ui/alert";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -12,17 +14,19 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await login(username, password);
+      const data = await login(username, password);
       toast({
         title: "Login successful",
         description: "Welcome to CareHub",
       });
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Login failed",
@@ -35,7 +39,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
+    <div className="flex flex-col items-center justify-center min-h-[80vh]">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-teal-600">CareHub</CardTitle>
@@ -70,7 +74,7 @@ export default function Login() {
               />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-4">
             <Button 
               type="submit" 
               className="w-full bg-teal-600 hover:bg-teal-700"
@@ -78,6 +82,20 @@ export default function Login() {
             >
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            
+            <Alert>
+              <AlertDescription className="text-xs text-gray-500">
+                <div className="font-medium mb-1">Available test accounts:</div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                  <div>admin / admin123</div>
+                  <div>superadmin / super123</div>
+                  <div>doctor / doctor123</div>
+                  <div>nurse / nurse123</div>
+                  <div>intern / intern123</div>
+                  <div>patient / patient123</div>
+                </div>
+              </AlertDescription>
+            </Alert>
           </CardFooter>
         </form>
       </Card>

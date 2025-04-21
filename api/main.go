@@ -46,6 +46,9 @@ type User struct {
 	Password string `json:"password"`
 	Role     string `json:"role"`
 	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Department string `json:"department"`
 }
 
 // Mock data stores (would be replaced by a database in production)
@@ -66,8 +69,12 @@ var healthMetrics = []HealthMetric{
 }
 
 var users = []User{
-	{ID: 1, Username: "admin", Password: "admin123", Role: "admin", Name: "Administrator"},
-	{ID: 2, Username: "doctor", Password: "doctor123", Role: "doctor", Name: "Dr. Sarah Williams"},
+	{ID: 1, Username: "admin", Password: "admin123", Role: "admin", Name: "Administrator", Email: "admin@carehub.com", Phone: "555-100-0001", Department: "Administration"},
+	{ID: 2, Username: "doctor", Password: "doctor123", Role: "doctor", Name: "Dr. Sarah Williams", Email: "sarah.williams@carehub.com", Phone: "555-100-0002", Department: "Cardiology"},
+	{ID: 3, Username: "superadmin", Password: "super123", Role: "superadmin", Name: "System Administrator", Email: "sysadmin@carehub.com", Phone: "555-100-0003", Department: "IT"},
+	{ID: 4, Username: "nurse", Password: "nurse123", Role: "nurse", Name: "Nancy White", Email: "nancy.white@carehub.com", Phone: "555-100-0004", Department: "Emergency"},
+	{ID: 5, Username: "intern", Password: "intern123", Role: "intern", Name: "Dr. Michael Lee", Email: "michael.lee@carehub.com", Phone: "555-100-0005", Department: "Pediatrics"},
+	{ID: 6, Username: "patient", Password: "patient123", Role: "patient", Name: "John Doe", Email: "john.doe@example.com", Phone: "555-123-4567", Department: ""},
 }
 
 func main() {

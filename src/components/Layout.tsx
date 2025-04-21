@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, hasRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -37,20 +37,42 @@ export default function Layout({ children }: LayoutProps) {
               <Link to="/dashboard" className="font-medium transition-colors hover:text-teal-600">
                 Dashboard
               </Link>
-              <Link to="/patients" className="font-medium transition-colors hover:text-teal-600">
-                Patients
-              </Link>
+              
+              {hasRole(['admin', 'superadmin', 'doctor', 'nurse', 'intern']) && (
+                <Link to="/patients" className="font-medium transition-colors hover:text-teal-600">
+                  Patients
+                </Link>
+              )}
+              
               <Link to="/appointments" className="font-medium transition-colors hover:text-teal-600">
                 Appointments
               </Link>
+              
+              {hasRole(['admin', 'superadmin']) && (
+                <Link to="/users" className="font-medium transition-colors hover:text-teal-600">
+                  Users
+                </Link>
+              )}
+              
+              {hasRole('superadmin') && (
+                <Link to="/settings" className="font-medium transition-colors hover:text-teal-600">
+                  System Settings
+                </Link>
+              )}
             </nav>
           )}
           
           <div className="flex items-center gap-4">
             {currentUser ? (
-              <Button onClick={handleLogout} variant="ghost" size="sm">
-                Logout
-              </Button>
+              <div className="flex items-center gap-4">
+                <div className="hidden md:block">
+                  <div className="text-sm font-medium">{currentUser.name}</div>
+                  <div className="text-xs text-gray-500">{currentUser.role}</div>
+                </div>
+                <Button onClick={handleLogout} variant="ghost" size="sm">
+                  Logout
+                </Button>
+              </div>
             ) : (
               <Link to="/login">
                 <Button variant="outline" size="sm">
