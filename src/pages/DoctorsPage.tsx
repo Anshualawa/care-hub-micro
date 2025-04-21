@@ -18,15 +18,12 @@ export default function DoctorsPage() {
     queryKey: ['doctors'],
     queryFn: doctorService.getAllDoctors,
     retry: false, // Prevent multiple retries that could cause render loops
-    onError: (err) => {
-      // Handle error in onError callback instead of during render
-      console.error('Failed to load doctors:', err);
-    }
   });
 
   // Use useEffect to show toast on error
   useEffect(() => {
     if (error) {
+      console.error('Failed to load doctors:', error);
       toast({
         variant: "destructive",
         title: "Error",

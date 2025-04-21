@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { blogService } from '../services/api';
@@ -18,7 +18,19 @@ export default function BlogsPage() {
   const { data: blogs, isLoading, error } = useQuery({
     queryKey: ['blogs'],
     queryFn: blogService.getAllBlogs,
+    retry: false, // Prevent multiple retries that could cause render loops
   });
+
+  // Use useEffect to show toast on error
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load blog posts. API may not be available.",
+      });
+    }
+  }, [error, toast]);
 
   if (isLoading) {
     return (
@@ -31,17 +43,16 @@ export default function BlogsPage() {
   }
 
   if (error) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Failed to load blog posts",
-    });
-    
     return (
       <Layout>
         <div className="text-center py-10">
           <h2 className="text-xl font-bold">Error loading blog posts</h2>
-          <p className="text-muted-foreground">Please try again later</p>
+          <p className="text-muted-foreground">The blogs API endpoint may not be available.</p>
+          <div className="mt-4">
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
         </div>
       </Layout>
     );
