@@ -51,6 +51,48 @@ type User struct {
 	Department string `json:"department"`
 }
 
+type Doctor struct {
+	ID           int      `json:"id"`
+	Name         string   `json:"name"`
+	Role         string   `json:"role"`
+	Email        string   `json:"email"`
+	Phone        string   `json:"phone"`
+	Department   string   `json:"department"`
+	Specialization string `json:"specialization"`
+	Bio          string   `json:"bio"`
+	Education    []string `json:"education"`
+	Experience   []string `json:"experience"`
+	ProfileImage string   `json:"profileImage"`
+}
+
+type Blog struct {
+	ID          int      `json:"id"`
+	Title       string   `json:"title"`
+	Content     string   `json:"content"`
+	Excerpt     string   `json:"excerpt"`
+	CoverImage  string   `json:"coverImage"`
+	AuthorId    int      `json:"authorId"`
+	AuthorName  string   `json:"authorName"`
+	PublishedAt string   `json:"publishedAt"`
+	UpdatedAt   string   `json:"updatedAt"`
+	Tags        []string `json:"tags"`
+}
+
+type Intern struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Department string `json:"department"`
+}
+
+type Hospital struct {
+	Name        string `json:"name"`
+	Address     string `json:"address"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	Description string `json:"description"`
+}
+
 // Mock data stores (would be replaced by a database in production)
 var patients = []Patient{
 	{ID: 1, FirstName: "John", LastName: "Doe", DateOfBirth: "1980-05-15", Email: "john.doe@example.com", Phone: "555-123-4567", Address: "123 Main St, Anytown, CA", CreatedAt: time.Now().Add(-24 * time.Hour)},
@@ -75,6 +117,31 @@ var users = []User{
 	{ID: 4, Username: "nurse", Password: "nurse123", Role: "nurse", Name: "Nancy White", Email: "nancy.white@carehub.com", Phone: "555-100-0004", Department: "Emergency"},
 	{ID: 5, Username: "intern", Password: "intern123", Role: "intern", Name: "Dr. Michael Lee", Email: "michael.lee@carehub.com", Phone: "555-100-0005", Department: "Pediatrics"},
 	{ID: 6, Username: "patient", Password: "patient123", Role: "patient", Name: "John Doe", Email: "john.doe@example.com", Phone: "555-123-4567", Department: ""},
+}
+
+var doctors = []Doctor{
+	{ID: 1, Name: "Dr. Jane Smith", Role: "doctor", Email: "jane.smith@carehub.com", Phone: "555-123-4567", Department: "Cardiology", Specialization: "Cardiology", Bio: "Dr. Smith is a board-certified cardiologist with over 15 years of experience.", Education: []string{"MD, Harvard Medical School", "Residency, Mayo Clinic"}, Experience: []string{"Senior Cardiologist, Mayo Clinic (2015-2020)", "Chief of Cardiology, CareHub Hospital (2020-Present)"}, ProfileImage: ""},
+	{ID: 2, Name: "Dr. Robert Chen", Role: "doctor", Email: "robert.chen@carehub.com", Phone: "555-234-5678", Department: "Neurology", Specialization: "Neurology", Bio: "Dr. Chen specializes in neurological disorders.", Education: []string{"MD, Johns Hopkins University", "Fellowship, Cleveland Clinic"}, Experience: []string{"Neurologist, Cleveland Clinic (2013-2018)", "Senior Neurologist, CareHub Hospital (2018-Present)"}, ProfileImage: "https://randomuser.me/api/portraits/men/32.jpg"},
+	{ID: 3, Name: "Dr. Maria Rodriguez", Role: "doctor", Email: "maria.rodriguez@carehub.com", Phone: "555-345-6789", Department: "Pediatrics", Specialization: "Pediatrics", Bio: "Dr. Rodriguez has dedicated her career to children's health.", Education: []string{"MD, Stanford University", "Residency, Children's Hospital of Philadelphia"}, Experience: []string{"Pediatrician, Boston Children's Hospital (2016-2021)", "Lead Pediatrician, CareHub Hospital (2021-Present)"}, ProfileImage: "https://randomuser.me/api/portraits/women/45.jpg"},
+	{ID: 4, Name: "Dr. James Wilson", Role: "doctor", Email: "james.wilson@carehub.com", Phone: "555-456-7890", Department: "Orthopedics", Specialization: "Orthopedic Surgery", Bio: "Dr. Wilson is an orthopedic surgeon specializing in sports injuries.", Education: []string{"MD, University of Michigan", "Orthopedic Fellowship, Hospital for Special Surgery"}, Experience: []string{"Orthopedic Surgeon, UCSF Medical Center (2012-2019)", "Chief of Orthopedics, CareHub Hospital (2019-Present)"}, ProfileImage: ""},
+}
+
+var blogs = []Blog{
+	{ID: 1, Title: "Heart Health Tips", Content: "Eat well, exercise, and manage stress.", Excerpt: "Stay heart-healthy!", CoverImage: "", AuthorId: 1, AuthorName: "Dr. Jane Smith", PublishedAt: "2024-06-11T11:00:00Z", UpdatedAt: "2024-06-11T14:00:00Z", Tags: []string{"cardiology"}},
+	{ID: 2, Title: "Understanding Migraines", Content: "Migraines affect millions. Here's what helps.", Excerpt: "Guide to controlling migraines.", CoverImage: "", AuthorId: 2, AuthorName: "Dr. Robert Chen", PublishedAt: "2024-05-21T09:30:00Z", UpdatedAt: "", Tags: []string{"neurology"}},
+}
+
+var interns = []Intern{
+	{ID: 1, Name: "Alex Green", Email: "alex.green@carehub.com", Department: "Cardiology"},
+	{ID: 2, Name: "Priya Patel", Email: "priya.patel@carehub.com", Department: "Pediatrics"},
+}
+
+var hospital = Hospital{
+	Name: "CareHub Hospital",
+	Address: "789 Health Ave, Metropolis, USA",
+	Email: "info@carehub.com",
+	Phone: "555-111-2222",
+	Description: "Modern hospital with the best medical team in the region.",
 }
 
 func main() {
@@ -116,6 +183,25 @@ func main() {
 		// Health metric endpoints
 		api.GET("/patients/:id/metrics", getPatientHealthMetrics)
 		api.POST("/patients/:id/metrics", recordHealthMetric)
+
+		// Doctor endpoints
+		api.GET("/doctors", getDoctors)
+		api.GET("/doctors/:id", getDoctor)
+		api.PUT("/doctors/:id", updateDoctor)
+
+		// Blog endpoints
+		api.GET("/blogs", getBlogs)
+		api.GET("/blogs/:id", getBlog)
+		api.POST("/blogs", createBlog)
+		api.PUT("/blogs/:id", updateBlog)
+		api.DELETE("/blogs/:id", deleteBlog)
+
+		// Intern endpoints
+		api.GET("/interns", getInterns)
+		api.GET("/interns/:id", getIntern)
+
+		// Hospital endpoint (only GET)
+		api.GET("/hospital", getHospital)
 	}
 
 	// Server setup
@@ -422,4 +508,140 @@ func recordHealthMetric(c *gin.Context) {
 
 	healthMetrics = append(healthMetrics, newMetric)
 	c.JSON(http.StatusCreated, newMetric)
+}
+
+// --- Doctor Handlers ---
+func getDoctors(c *gin.Context) {
+	c.JSON(http.StatusOK, doctors)
+}
+
+func getDoctor(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	for _, d := range doctors {
+		if d.ID == id {
+			c.JSON(http.StatusOK, d)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Doctor not found"})
+}
+
+func updateDoctor(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	var updated Doctor
+	if err := c.ShouldBindJSON(&updated); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	for i, d := range doctors {
+		if d.ID == id {
+			updated.ID = id
+			doctors[i] = updated
+			c.JSON(http.StatusOK, updated)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Doctor not found"})
+}
+
+// --- Blog Handlers ---
+func getBlogs(c *gin.Context) {
+	c.JSON(http.StatusOK, blogs)
+}
+
+func getBlog(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	for _, b := range blogs {
+		if b.ID == id {
+			c.JSON(http.StatusOK, b)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Blog not found"})
+}
+
+func createBlog(c *gin.Context) {
+	var newBlog Blog
+	if err := c.ShouldBindJSON(&newBlog); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	newBlog.ID = len(blogs) + 1
+	blogs = append(blogs, newBlog)
+	c.JSON(http.StatusCreated, newBlog)
+}
+
+func updateBlog(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	var updated Blog
+	if err := c.ShouldBindJSON(&updated); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	for i, b := range blogs {
+		if b.ID == id {
+			updated.ID = id
+			blogs[i] = updated
+			c.JSON(http.StatusOK, updated)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Blog not found"})
+}
+
+func deleteBlog(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	for i, b := range blogs {
+		if b.ID == id {
+			blogs = append(blogs[:i], blogs[i+1:]...)
+			c.JSON(http.StatusOK, gin.H{"message": "Blog deleted"})
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Blog not found"})
+}
+
+// --- Intern Handlers ---
+func getInterns(c *gin.Context) {
+	c.JSON(http.StatusOK, interns)
+}
+
+func getIntern(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+	for _, i := range interns {
+		if i.ID == id {
+			c.JSON(http.StatusOK, i)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Intern not found"})
+}
+
+// --- Hospital Handler ---
+func getHospital(c *gin.Context) {
+	c.JSON(http.StatusOK, hospital)
 }
