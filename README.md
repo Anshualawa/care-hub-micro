@@ -1,73 +1,86 @@
-# Welcome to your Lovable project
 
-## Project info
+# CareHub Healthcare Microservice
 
-**URL**: https://lovable.dev/projects/e41b16f7-ed38-4f21-8234-3ebe37d85909
+A modern healthcare management application built with Go (Gin) and React.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Patient Management:** Create, view, update, and delete patient records
+- **Appointment Scheduling:** Manage appointments with calendar integration
+- **Health Metrics Tracking:** Monitor patient health data with visual charts
+- **User Authentication:** Secure login system with role-based access
 
-**Use Lovable**
+## Technologies Used
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e41b16f7-ed38-4f21-8234-3ebe37d85909) and start prompting.
+### Backend
+- Go with Gin web framework
+- RESTful API architecture
+- In-memory data storage (can be extended to use a database)
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- React with TypeScript
+- TailwindCSS for styling
+- Recharts for data visualization
+- React Query for API data management
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Running the Backend
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Navigate to the api directory
+cd api
 
-Follow these steps:
+# Install dependencies
+go mod tidy
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Run the service
+go run main.go
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+The backend service will run on port 8090.
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Running the Frontend
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+# In the project root directory
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The frontend application will run on port 8080.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## API Documentation
 
-**Use GitHub Codespaces**
+See the [API README](api/README.md) for detailed endpoint documentation.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Demo Credentials
 
-## What technologies are used for this project?
+- Admin: username: `admin`, password: `admin123`
+- Doctor: username: `doctor`, password: `doctor123`
 
-This project is built with:
+## Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+/
+├── api/                # Go backend
+│   ├── main.go         # Main application entry
+│   └── go.mod          # Go module definition
+│
+├── src/
+│   ├── components/     # UI Components
+│   ├── context/        # React Context providers  
+│   ├── pages/          # Application pages
+│   ├── services/       # API service layer
+│   └── utils/          # Utility functions
+│
+└── public/             # Static assets
+```
 
-## How can I deploy this project?
+## Next Steps / Future Enhancements
 
-Simply open [Lovable](https://lovable.dev/projects/e41b16f7-ed38-4f21-8234-3ebe37d85909) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Add persistent database storage
+- Implement JWT authentication with refresh tokens
+- Add more health metrics and visualization options
+- Add reporting and export functionality
+- Mobile application support
