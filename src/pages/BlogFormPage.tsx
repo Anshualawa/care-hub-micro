@@ -45,10 +45,14 @@ export default function BlogFormPage() {
     queryKey: ['blog', blogId],
     queryFn: () => blogService.getBlogById(Number(blogId)),
     enabled: isEditMode,
-    onSuccess: (data) => {
+  });
+
+  // Update form when blog data is loaded
+  useEffect(() => {
+    if (blog) {
       // Check if current user is allowed to edit this blog
       const canEdit = hasRole(['admin', 'superadmin']) || 
-        (hasRole(['doctor']) && currentUser?.id === data.authorId);
+        (hasRole(['doctor']) && currentUser?.id === blog.authorId);
         
       if (!canEdit) {
         toast({
@@ -60,13 +64,13 @@ export default function BlogFormPage() {
         return;
       }
       
-      setTitle(data.title);
-      setContent(data.content);
-      setExcerpt(data.excerpt || '');
-      setCoverImage(data.coverImage || '');
-      setTags(data.tags ? data.tags.join(', ') : '');
-    },
-  });
+      setTitle(blog.title);
+      setContent(blog.content);
+      setExcerpt(blog.excerpt || '');
+      setCoverImage(blog.coverImage || '');
+      setTags(blog.tags ? blog.tags.join(', ') : '');
+    }
+  }, [blog, blogId, currentUser, hasRole, navigate, toast]);
   
   // Create blog mutation
   const createMutation = useMutation({
