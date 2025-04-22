@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 	"fmt"
+	"log"
+	"carehub-microservice/db"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
@@ -145,6 +147,13 @@ var hospital = Hospital{
 }
 
 func main() {
+	// Initialize database connection
+	err := db.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer db.CloseDB()
+
 	r := gin.Default()
 
 	// Configure CORS to allow frontend requests
