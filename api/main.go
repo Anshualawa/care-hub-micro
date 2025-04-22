@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -172,6 +171,7 @@ func main() {
 	auth := r.Group("/auth")
 	{
 		auth.POST("/login", login)
+		auth.POST("/signup", signup)
 	}
 
 	// API routes
@@ -261,6 +261,69 @@ func login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+}
+
+func signup(c *gin.Context) {
+	var userData struct {
+		Username   string `json:"username"`
+		Password   string `json:"password"`
+		Role      string `json:"role"`
+		Name      string `json:"name"`
+		Email     string `json:"email"`
+		Phone     string `json:"phone"`
+		Department string `json:"department"`
+	}
+
+	if err := c.ShouldBindJSON(&userData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid signup data"})
+		return
+	}
+
+	// Check if username already exists
+	var exists bool
+	err := db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", userData.Username).Scan(&exists)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+	if exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
+		return
+	}
+
+	// Check if email already exists
+	err = db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", userData.Email).Scan(&exists)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+	if exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
+		return
+	}
+
+	// Insert new user
+	query := `INSERT INTO users (username, password, role, name, email, phone, department) 
+			  VALUES (?, ?, ?, ?, ?, ?, ?)`
+	result, err := db.DB.Exec(query, 
+		userData.Username, userData.Password, userData.Role, 
+		userData.Name, userData.Email, userData.Phone, userData.Department)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
+		return
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user ID"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User created successfully",
+		"userId": id,
+	})
 }
 
 // Patient Handlers

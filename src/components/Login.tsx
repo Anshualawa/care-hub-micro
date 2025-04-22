@@ -6,7 +6,7 @@ import { Input } from "./ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "./ui/use-toast";
 import { Alert, AlertDescription } from "./ui/alert";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -82,6 +82,13 @@ export default function Login() {
             >
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            
+            <div className="text-center text-sm">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-teal-600 hover:text-teal-700">
+                Sign up
+              </Link>
+            </div>
             
             <Alert>
               <AlertDescription className="text-xs text-gray-500">
