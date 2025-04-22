@@ -48,4 +48,3 @@ func RunMigrations(db *sql.DB) error {
 
 	return nil
 }
-

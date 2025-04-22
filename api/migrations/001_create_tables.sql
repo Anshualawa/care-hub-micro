@@ -82,4 +82,3 @@ CREATE TABLE IF NOT EXISTS interns (
     email VARCHAR(255) NOT NULL UNIQUE,
     department VARCHAR(255) NOT NULL
 );
-

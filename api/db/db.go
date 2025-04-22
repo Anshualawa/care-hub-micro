@@ -46,4 +46,3 @@ func CloseDB() {
 		DB.Close()
 	}
 }
-
