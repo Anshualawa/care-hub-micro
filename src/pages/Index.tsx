@@ -3,6 +3,21 @@ import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
+import { Hospital, ChartBar, Calendar, User } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Index = () => {
   const { currentUser } = useAuth();
@@ -16,77 +31,208 @@ const Index = () => {
     }
   };
 
+  const testimonials = [
+    {
+      name: "Sarah Johnson",
+      role: "Patient",
+      content: "The care I received at CareHub was exceptional. The staff was attentive and professional."
+    },
+    {
+      name: "Dr. Michael Chen",
+      role: "Cardiologist",
+      content: "State-of-the-art facilities and a collaborative environment make CareHub an excellent place to practice medicine."
+    },
+    {
+      name: "Emma Thompson",
+      role: "Healthcare Administrator",
+      content: "CareHub's integrated systems have revolutionized how we manage patient care and administrative tasks."
+    }
+  ];
+
   return (
     <Layout>
-      <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-        <div className="max-w-3xl mx-auto px-4">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            <span className="block text-gray-900">Modern Healthcare</span>
-            <span className="block text-teal-600 mt-2">Made Simple</span>
-          </h1>
-          
-          <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
-            CareHub streamlines healthcare management with powerful patient tracking, 
-            appointment scheduling, and health metrics monitoring.
-          </p>
-          
-          <div className="mt-10">
-            <Button 
-              onClick={handleGetStarted}
-              className="text-white bg-teal-600 hover:bg-teal-700 px-8 py-6 text-lg rounded-md"
-            >
-              {currentUser ? "Go to Dashboard" : "Get Started"}
-            </Button>
+      <div className="flex flex-col min-h-screen">
+        {/* Hero Section */}
+        <div className="relative bg-gradient-to-r from-teal-600 to-teal-700 text-white py-20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
+                World-Class Healthcare
+                <span className="block mt-2">At Your Service</span>
+              </h1>
+              <p className="text-xl text-teal-100 mb-8">
+                Experience exceptional medical care with cutting-edge technology and compassionate professionals.
+              </p>
+              <Button 
+                onClick={handleGetStarted}
+                size="lg"
+                className="bg-white text-teal-600 hover:bg-teal-50"
+              >
+                {currentUser ? "Go to Dashboard" : "Book an Appointment"}
+              </Button>
+            </div>
           </div>
-          
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 border rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Patient Management</h3>
-              <p className="text-gray-600">
-                Easily create and manage patient records with secure storage and quick access.
+        </div>
+
+        {/* Statistics Section */}
+        <div className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-teal-100 rounded-full">
+                      <Hospital className="w-6 h-6 text-teal-600" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">50+</div>
+                      <div className="text-muted-foreground">Departments</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-teal-100 rounded-full">
+                      <User className="w-6 h-6 text-teal-600" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">200+</div>
+                      <div className="text-muted-foreground">Expert Doctors</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-teal-100 rounded-full">
+                      <Calendar className="w-6 h-6 text-teal-600" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">10k+</div>
+                      <div className="text-muted-foreground">Annual Patients</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-teal-100 rounded-full">
+                      <ChartBar className="w-6 h-6 text-teal-600" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">95%</div>
+                      <div className="text-muted-foreground">Success Rate</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Services Section */}
+        <div className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Our Services</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Comprehensive healthcare services delivered by experienced professionals using state-of-the-art technology.
               </p>
             </div>
             
-            <div className="p-6 border rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Appointment Scheduling</h3>
-              <p className="text-gray-600">
-                Schedule and manage appointments efficiently with automated reminders.
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Primary Care</CardTitle>
+                  <CardDescription>
+                    Comprehensive health assessments and preventive care for all ages
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                    <li>Regular check-ups</li>
+                    <li>Preventive screenings</li>
+                    <li>Immunizations</li>
+                    <li>Health counseling</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Specialized Care</CardTitle>
+                  <CardDescription>
+                    Expert treatment in various medical specialties
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                    <li>Cardiology</li>
+                    <li>Orthopedics</li>
+                    <li>Neurology</li>
+                    <li>Oncology</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Emergency Care</CardTitle>
+                  <CardDescription>
+                    24/7 emergency medical services
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                    <li>Trauma care</li>
+                    <li>Critical care</li>
+                    <li>Emergency surgery</li>
+                    <li>Rapid response</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Testimonials Section */}
+        <div className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">What Our Patients Say</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Read about the experiences of our patients and healthcare professionals.
               </p>
             </div>
-            
-            <div className="p-6 border rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
-                  <path d="M2 12h6"></path>
-                  <path d="M22 12h-6"></path>
-                  <path d="M12 2v2"></path>
-                  <path d="M12 8v2"></path>
-                  <path d="M12 14v2"></path>
-                  <path d="M12 20v2"></path>
-                  <circle cx="12" cy="12" r="10"></circle>
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Health Metrics</h3>
-              <p className="text-gray-600">
-                Track and visualize patient health metrics for better care decisions.
-              </p>
-            </div>
+
+            <Carousel className="max-w-xl mx-auto">
+              <CarouselContent>
+                {testimonials.map((testimonial, index) => (
+                  <CarouselItem key={index}>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <blockquote className="space-y-4">
+                          <p className="text-muted-foreground">"{testimonial.content}"</p>
+                          <footer>
+                            <div className="font-semibold">{testimonial.name}</div>
+                            <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                          </footer>
+                        </blockquote>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         </div>
       </div>
