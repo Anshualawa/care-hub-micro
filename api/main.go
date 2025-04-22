@@ -1,16 +1,16 @@
 package main
 
 import (
+	"carehub-microservice/db"
 	"database/sql"
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
-	"fmt"
-	"log"
-	"carehub-microservice/db"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 // Models
@@ -35,37 +35,37 @@ type Appointment struct {
 }
 
 type HealthMetric struct {
-	ID        int       `json:"id"`
-	PatientID int       `json:"patientId"`
-	Type      string    `json:"type"`
-	Value     float64   `json:"value"`
-	Unit      string    `json:"unit"`
+	ID         int       `json:"id"`
+	PatientID  int       `json:"patientId"`
+	Type       string    `json:"type"`
+	Value      float64   `json:"value"`
+	Unit       string    `json:"unit"`
 	RecordedAt time.Time `json:"recordedAt"`
 }
 
 type User struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
+	ID         int    `json:"id"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Role       string `json:"role"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Phone      string `json:"phone"`
 	Department string `json:"department"`
 }
 
 type Doctor struct {
-	ID           int      `json:"id"`
-	Name         string   `json:"name"`
-	Role         string   `json:"role"`
-	Email        string   `json:"email"`
-	Phone        string   `json:"phone"`
-	Department   string   `json:"department"`
-	Specialization string `json:"specialization"`
-	Bio          string   `json:"bio"`
-	Education    []string `json:"education"`
-	Experience   []string `json:"experience"`
-	ProfileImage string   `json:"profileImage"`
+	ID             int      `json:"id"`
+	Name           string   `json:"name"`
+	Role           string   `json:"role"`
+	Email          string   `json:"email"`
+	Phone          string   `json:"phone"`
+	Department     string   `json:"department"`
+	Specialization string   `json:"specialization"`
+	Bio            string   `json:"bio"`
+	Education      []string `json:"education"`
+	Experience     []string `json:"experience"`
+	ProfileImage   string   `json:"profileImage"`
 }
 
 type Blog struct {
@@ -140,10 +140,10 @@ var interns = []Intern{
 }
 
 var hospital = Hospital{
-	Name: "CareHub Hospital",
-	Address: "789 Health Ave, Metropolis, USA",
-	Email: "info@carehub.com",
-	Phone: "555-111-2222",
+	Name:        "CareHub Hospital",
+	Address:     "789 Health Ave, Metropolis, USA",
+	Email:       "info@carehub.com",
+	Phone:       "555-111-2222",
 	Description: "Modern hospital with the best medical team in the region.",
 }
 
@@ -159,7 +159,7 @@ func main() {
 
 	// Configure CORS to allow frontend requests
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:8080"},
+		AllowOrigins:     []string{"http://localhost:8080", "http://192.168.1.7:8080"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -237,7 +237,7 @@ func login(c *gin.Context) {
 	query := "SELECT id, username, password, role, name, email, phone, department FROM users WHERE username = ? LIMIT 1"
 	err := db.DB.QueryRow(query, loginData.Username).Scan(
 		&user.ID, &user.Username, &user.Password, &user.Role, &user.Name, &user.Email, &user.Phone, &user.Department)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -267,10 +267,10 @@ func signup(c *gin.Context) {
 	var userData struct {
 		Username   string `json:"username"`
 		Password   string `json:"password"`
-		Role      string `json:"role"`
-		Name      string `json:"name"`
-		Email     string `json:"email"`
-		Phone     string `json:"phone"`
+		Role       string `json:"role"`
+		Name       string `json:"name"`
+		Email      string `json:"email"`
+		Phone      string `json:"phone"`
 		Department string `json:"department"`
 	}
 
@@ -305,10 +305,10 @@ func signup(c *gin.Context) {
 	// Insert new user
 	query := `INSERT INTO users (username, password, role, name, email, phone, department) 
 			  VALUES (?, ?, ?, ?, ?, ?, ?)`
-	result, err := db.DB.Exec(query, 
-		userData.Username, userData.Password, userData.Role, 
+	result, err := db.DB.Exec(query,
+		userData.Username, userData.Password, userData.Role,
 		userData.Name, userData.Email, userData.Phone, userData.Department)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
 		return
@@ -322,7 +322,7 @@ func signup(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User created successfully",
-		"userId": id,
+		"userId":  id,
 	})
 }
 
@@ -334,12 +334,12 @@ func getPatients(c *gin.Context) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var patients []Patient
 	for rows.Next() {
 		var patient Patient
 		var dbTime time.Time
-		err := rows.Scan(&patient.ID, &patient.FirstName, &patient.LastName, &patient.DateOfBirth, 
+		err := rows.Scan(&patient.ID, &patient.FirstName, &patient.LastName, &patient.DateOfBirth,
 			&patient.Email, &patient.Phone, &patient.Address, &dbTime)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Row scan error"})
@@ -348,7 +348,7 @@ func getPatients(c *gin.Context) {
 		patient.CreatedAt = dbTime
 		patients = append(patients, patient)
 	}
-	
+
 	c.JSON(http.StatusOK, patients)
 }
 
@@ -363,9 +363,9 @@ func getPatient(c *gin.Context) {
 	var dbTime time.Time
 	query := "SELECT id, first_name, last_name, date_of_birth, email, phone, address, created_at FROM patients WHERE id = ?"
 	err = db.DB.QueryRow(query, id).Scan(
-		&patient.ID, &patient.FirstName, &patient.LastName, &patient.DateOfBirth, 
+		&patient.ID, &patient.FirstName, &patient.LastName, &patient.DateOfBirth,
 		&patient.Email, &patient.Phone, &patient.Address, &dbTime)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Patient not found"})
@@ -374,7 +374,7 @@ func getPatient(c *gin.Context) {
 		}
 		return
 	}
-	
+
 	patient.CreatedAt = dbTime
 	c.JSON(http.StatusOK, patient)
 }
@@ -388,10 +388,10 @@ func createPatient(c *gin.Context) {
 
 	query := `INSERT INTO patients (first_name, last_name, date_of_birth, email, phone, address) 
 			  VALUES (?, ?, ?, ?, ?, ?)`
-	result, err := db.DB.Exec(query, 
-		newPatient.FirstName, newPatient.LastName, newPatient.DateOfBirth, 
+	result, err := db.DB.Exec(query,
+		newPatient.FirstName, newPatient.LastName, newPatient.DateOfBirth,
 		newPatient.Email, newPatient.Phone, newPatient.Address)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create patient: " + err.Error()})
 		return
@@ -402,10 +402,10 @@ func createPatient(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get inserted ID"})
 		return
 	}
-	
+
 	newPatient.ID = int(id)
 	newPatient.CreatedAt = time.Now()
-	
+
 	c.JSON(http.StatusCreated, newPatient)
 }
 
@@ -424,10 +424,10 @@ func updatePatient(c *gin.Context) {
 
 	query := `UPDATE patients SET first_name = ?, last_name = ?, date_of_birth = ?, 
 			 email = ?, phone = ?, address = ? WHERE id = ?`
-	result, err := db.DB.Exec(query, 
-		updatedPatient.FirstName, updatedPatient.LastName, updatedPatient.DateOfBirth, 
+	result, err := db.DB.Exec(query,
+		updatedPatient.FirstName, updatedPatient.LastName, updatedPatient.DateOfBirth,
 		updatedPatient.Email, updatedPatient.Phone, updatedPatient.Address, id)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update patient: " + err.Error()})
 		return
@@ -438,7 +438,7 @@ func updatePatient(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get affected rows"})
 		return
 	}
-	
+
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Patient not found"})
 		return
@@ -452,10 +452,10 @@ func updatePatient(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve updated patient"})
 		return
 	}
-	
+
 	updatedPatient.ID = id
 	updatedPatient.CreatedAt = dbTime
-	
+
 	c.JSON(http.StatusOK, updatedPatient)
 }
 
@@ -471,45 +471,45 @@ func deletePatient(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete patient: " + err.Error()})
 		return
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get affected rows"})
 		return
 	}
-	
+
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Patient not found"})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{"message": "Patient deleted"})
 }
 
 // Appointment Handlers
 func getAppointments(c *gin.Context) {
 	patientID := c.Query("patientId")
-	
+
 	var rows *sql.Rows
 	var err error
-	
+
 	if patientID != "" {
 		rows, err = db.DB.Query("SELECT id, patient_id, date_time, description, status, doctor FROM appointments WHERE patient_id = ?", patientID)
 	} else {
 		rows, err = db.DB.Query("SELECT id, patient_id, date_time, description, status, doctor FROM appointments")
 	}
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 	defer rows.Close()
-	
+
 	var appointments []Appointment
 	for rows.Next() {
 		var appointment Appointment
 		var dbTime time.Time
-		err := rows.Scan(&appointment.ID, &appointment.PatientID, &dbTime, 
+		err := rows.Scan(&appointment.ID, &appointment.PatientID, &dbTime,
 			&appointment.Description, &appointment.Status, &appointment.Doctor)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Row scan error"})
@@ -518,7 +518,7 @@ func getAppointments(c *gin.Context) {
 		appointment.DateTime = dbTime
 		appointments = append(appointments, appointment)
 	}
-	
+
 	c.JSON(http.StatusOK, appointments)
 }
 
@@ -533,9 +533,9 @@ func getAppointment(c *gin.Context) {
 	var dbTime time.Time
 	query := "SELECT id, patient_id, date_time, description, status, doctor FROM appointments WHERE id = ?"
 	err = db.DB.QueryRow(query, id).Scan(
-		&appointment.ID, &appointment.PatientID, &dbTime, 
+		&appointment.ID, &appointment.PatientID, &dbTime,
 		&appointment.Description, &appointment.Status, &appointment.Doctor)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Appointment not found"})
@@ -544,7 +544,7 @@ func getAppointment(c *gin.Context) {
 		}
 		return
 	}
-	
+
 	appointment.DateTime = dbTime
 	c.JSON(http.StatusOK, appointment)
 }
@@ -580,10 +580,10 @@ func createAppointment(c *gin.Context) {
 
 	query := `INSERT INTO appointments (patient_id, date_time, description, status, doctor) 
 			  VALUES (?, ?, ?, ?, ?)`
-	result, err := db.DB.Exec(query, 
-		appointmentData.PatientID, dateTime, appointmentData.Description, 
+	result, err := db.DB.Exec(query,
+		appointmentData.PatientID, dateTime, appointmentData.Description,
 		appointmentData.Status, appointmentData.Doctor)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create appointment: " + err.Error()})
 		return
@@ -594,7 +594,7 @@ func createAppointment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get inserted ID"})
 		return
 	}
-	
+
 	newAppointment := Appointment{
 		ID:          int(id),
 		PatientID:   appointmentData.PatientID,
@@ -603,7 +603,7 @@ func createAppointment(c *gin.Context) {
 		Status:      appointmentData.Status,
 		Doctor:      appointmentData.Doctor,
 	}
-	
+
 	c.JSON(http.StatusCreated, newAppointment)
 }
 
@@ -642,10 +642,10 @@ func updateAppointment(c *gin.Context) {
 
 	query := `UPDATE appointments SET patient_id = ?, date_time = ?, description = ?,
 			 status = ?, doctor = ? WHERE id = ?`
-	result, err := db.DB.Exec(query, 
+	result, err := db.DB.Exec(query,
 		appointmentData.PatientID, dateTime, appointmentData.Description,
 		appointmentData.Status, appointmentData.Doctor, id)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update appointment: " + err.Error()})
 		return
@@ -656,12 +656,12 @@ func updateAppointment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get affected rows"})
 		return
 	}
-	
+
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Appointment not found"})
 		return
 	}
-	
+
 	updatedAppointment := Appointment{
 		ID:          id,
 		PatientID:   appointmentData.PatientID,
@@ -670,7 +670,7 @@ func updateAppointment(c *gin.Context) {
 		Status:      appointmentData.Status,
 		Doctor:      appointmentData.Doctor,
 	}
-	
+
 	c.JSON(http.StatusOK, updatedAppointment)
 }
 
@@ -686,18 +686,18 @@ func deleteAppointment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete appointment: " + err.Error()})
 		return
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get affected rows"})
 		return
 	}
-	
+
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Appointment not found"})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{"message": "Appointment deleted"})
 }
 
@@ -715,12 +715,12 @@ func getPatientHealthMetrics(c *gin.Context) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var metrics []HealthMetric
 	for rows.Next() {
 		var metric HealthMetric
 		var dbTime time.Time
-		err := rows.Scan(&metric.ID, &metric.PatientID, &metric.Type, 
+		err := rows.Scan(&metric.ID, &metric.PatientID, &metric.Type,
 			&metric.Value, &metric.Unit, &dbTime)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Row scan error"})
@@ -729,7 +729,7 @@ func getPatientHealthMetrics(c *gin.Context) {
 		metric.RecordedAt = dbTime
 		metrics = append(metrics, metric)
 	}
-	
+
 	c.JSON(http.StatusOK, metrics)
 }
 
@@ -749,7 +749,7 @@ func recordHealthMetric(c *gin.Context) {
 	query := `INSERT INTO health_metrics (patient_id, type, value, unit) 
 			  VALUES (?, ?, ?, ?)`
 	result, err := db.DB.Exec(query, patientID, newMetric.Type, newMetric.Value, newMetric.Unit)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to record health metric: " + err.Error()})
 		return
@@ -760,7 +760,7 @@ func recordHealthMetric(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get inserted ID"})
 		return
 	}
-	
+
 	// Fetch the created health metric with recorded_at timestamp
 	var dbTime time.Time
 	queryGet := "SELECT recorded_at FROM health_metrics WHERE id = ?"
@@ -769,11 +769,11 @@ func recordHealthMetric(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recorded metric"})
 		return
 	}
-	
+
 	newMetric.ID = int(id)
 	newMetric.PatientID = patientID
 	newMetric.RecordedAt = dbTime
-	
+
 	c.JSON(http.StatusCreated, newMetric)
 }
 
@@ -786,21 +786,21 @@ func getDoctors(c *gin.Context) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var doctors []Doctor
 	for rows.Next() {
 		var doctor Doctor
-		err := rows.Scan(&doctor.ID, &doctor.Name, &doctor.Role, &doctor.Email, 
+		err := rows.Scan(&doctor.ID, &doctor.Name, &doctor.Role, &doctor.Email,
 			&doctor.Phone, &doctor.Department, &doctor.Specialization, &doctor.Bio, &doctor.ProfileImage)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Row scan error"})
 			return
 		}
-		
+
 		// Get education and experience for each doctor
 		doctor.Education = []string{}
 		doctor.Experience = []string{}
-		
+
 		// In a real implementation, we'd fetch these from related tables
 		// For simplicity, we'll use placeholder data
 		if doctor.ID == 1 {
@@ -810,10 +810,10 @@ func getDoctors(c *gin.Context) {
 			doctor.Education = []string{"MD, Johns Hopkins University", "Fellowship, Cleveland Clinic"}
 			doctor.Experience = []string{"Neurologist, Cleveland Clinic (2013-2018)", "Senior Neurologist, CareHub Hospital (2018-Present)"}
 		}
-		
+
 		doctors = append(doctors, doctor)
 	}
-	
+
 	c.JSON(http.StatusOK, doctors)
 }
 
@@ -823,14 +823,14 @@ func getDoctor(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	
+
 	var doctor Doctor
 	query := `SELECT id, name, role, email, phone, department, 
 		specialization, bio, profile_image FROM doctors WHERE id = ?`
-	err = db.DB.QueryRow(query, id).Scan(&doctor.ID, &doctor.Name, &doctor.Role, 
-		&doctor.Email, &doctor.Phone, &doctor.Department, &doctor.Specialization, 
+	err = db.DB.QueryRow(query, id).Scan(&doctor.ID, &doctor.Name, &doctor.Role,
+		&doctor.Email, &doctor.Phone, &doctor.Department, &doctor.Specialization,
 		&doctor.Bio, &doctor.ProfileImage)
-		
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Doctor not found"})
@@ -839,7 +839,7 @@ func getDoctor(c *gin.Context) {
 		}
 		return
 	}
-	
+
 	// Get education and experience (simplified)
 	if doctor.ID == 1 {
 		doctor.Education = []string{"MD, Harvard Medical School", "Residency, Mayo Clinic"}
@@ -848,7 +848,7 @@ func getDoctor(c *gin.Context) {
 		doctor.Education = []string{"MD, Johns Hopkins University", "Fellowship, Cleveland Clinic"}
 		doctor.Experience = []string{"Neurologist, Cleveland Clinic (2013-2018)", "Senior Neurologist, CareHub Hospital (2018-Present)"}
 	}
-	
+
 	c.JSON(http.StatusOK, doctor)
 }
 
@@ -858,37 +858,37 @@ func updateDoctor(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	
+
 	var doctor Doctor
 	if err := c.ShouldBindJSON(&doctor); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	// Update basic doctor information
 	query := `UPDATE doctors SET name = ?, role = ?, email = ?, phone = ?,
 		department = ?, specialization = ?, bio = ?, profile_image = ? WHERE id = ?`
 	result, err := db.DB.Exec(query, doctor.Name, doctor.Role, doctor.Email, doctor.Phone,
 		doctor.Department, doctor.Specialization, doctor.Bio, doctor.ProfileImage, id)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update doctor: " + err.Error()})
 		return
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get affected rows"})
 		return
 	}
-	
+
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Doctor not found"})
 		return
 	}
-	
+
 	// In a real implementation, we'd update education and experience in related tables
-	
+
 	doctor.ID = id
 	c.JSON(http.StatusOK, doctor)
 }
@@ -902,31 +902,31 @@ func getBlogs(c *gin.Context) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var blogs []Blog
 	for rows.Next() {
 		var blog Blog
 		var publishedAt, updatedAt string
-		err := rows.Scan(&blog.ID, &blog.Title, &blog.Content, &blog.Excerpt, 
+		err := rows.Scan(&blog.ID, &blog.Title, &blog.Content, &blog.Excerpt,
 			&blog.CoverImage, &blog.AuthorId, &blog.AuthorName, &publishedAt, &updatedAt)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Row scan error"})
 			return
 		}
-		
+
 		blog.PublishedAt = publishedAt
 		blog.UpdatedAt = updatedAt
-		
+
 		// Get tags for each blog (simplification)
 		if blog.ID == 1 {
 			blog.Tags = []string{"cardiology"}
 		} else if blog.ID == 2 {
 			blog.Tags = []string{"neurology"}
 		}
-		
+
 		blogs = append(blogs, blog)
 	}
-	
+
 	c.JSON(http.StatusOK, blogs)
 }
 
@@ -936,14 +936,14 @@ func getBlog(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	
+
 	var blog Blog
 	var publishedAt, updatedAt string
 	query := `SELECT id, title, content, excerpt, cover_image, 
 		author_id, author_name, published_at, updated_at FROM blogs WHERE id = ?`
-	err = db.DB.QueryRow(query, id).Scan(&blog.ID, &blog.Title, &blog.Content, 
+	err = db.DB.QueryRow(query, id).Scan(&blog.ID, &blog.Title, &blog.Content,
 		&blog.Excerpt, &blog.CoverImage, &blog.AuthorId, &blog.AuthorName, &publishedAt, &updatedAt)
-		
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Blog not found"})
@@ -952,17 +952,17 @@ func getBlog(c *gin.Context) {
 		}
 		return
 	}
-	
+
 	blog.PublishedAt = publishedAt
 	blog.UpdatedAt = updatedAt
-	
+
 	// Get tags (simplified)
 	if blog.ID == 1 {
 		blog.Tags = []string{"cardiology"}
 	} else if blog.ID == 2 {
 		blog.Tags = []string{"neurology"}
 	}
-	
+
 	c.JSON(http.StatusOK, blog)
 }
 
@@ -972,30 +972,30 @@ func createBlog(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	now := time.Now().Format(time.RFC3339)
-	
+
 	query := `INSERT INTO blogs (title, content, excerpt, cover_image, author_id, author_name, published_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?)`
-	result, err := db.DB.Exec(query, blog.Title, blog.Content, blog.Excerpt, 
+	result, err := db.DB.Exec(query, blog.Title, blog.Content, blog.Excerpt,
 		blog.CoverImage, blog.AuthorId, blog.AuthorName, now)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create blog: " + err.Error()})
 		return
 	}
-	
+
 	id, err := result.LastInsertId()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get inserted ID"})
 		return
 	}
-	
+
 	blog.ID = int(id)
 	blog.PublishedAt = now
-	
+
 	// In a real implementation, we would save tags to a related table
-	
+
 	c.JSON(http.StatusCreated, blog)
 }
 
@@ -1005,36 +1005,36 @@ func updateBlog(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	
+
 	var blog Blog
 	if err := c.ShouldBindJSON(&blog); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	now := time.Now().Format(time.RFC3339)
-	
+
 	query := `UPDATE blogs SET title = ?, content = ?, excerpt = ?, cover_image = ?, 
 		author_id = ?, author_name = ?, updated_at = ? WHERE id = ?`
-	result, err := db.DB.Exec(query, blog.Title, blog.Content, blog.Excerpt, blog.CoverImage, 
+	result, err := db.DB.Exec(query, blog.Title, blog.Content, blog.Excerpt, blog.CoverImage,
 		blog.AuthorId, blog.AuthorName, now, id)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update blog: " + err.Error()})
 		return
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get affected rows"})
 		return
 	}
-	
+
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Blog not found"})
 		return
 	}
-	
+
 	// Fetch the updated blog with timestamps
 	var publishedAt string
 	queryGet := "SELECT published_at FROM blogs WHERE id = ?"
@@ -1043,11 +1043,11 @@ func updateBlog(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve updated blog"})
 		return
 	}
-	
+
 	blog.ID = id
 	blog.PublishedAt = publishedAt
 	blog.UpdatedAt = now
-	
+
 	c.JSON(http.StatusOK, blog)
 }
 
@@ -1057,24 +1057,24 @@ func deleteBlog(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	
+
 	result, err := db.DB.Exec("DELETE FROM blogs WHERE id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete blog: " + err.Error()})
 		return
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get affected rows"})
 		return
 	}
-	
+
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Blog not found"})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{"message": "Blog deleted"})
 }
 
@@ -1086,7 +1086,7 @@ func getInterns(c *gin.Context) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var interns []Intern
 	for rows.Next() {
 		var intern Intern
@@ -1097,7 +1097,7 @@ func getInterns(c *gin.Context) {
 		}
 		interns = append(interns, intern)
 	}
-	
+
 	c.JSON(http.StatusOK, interns)
 }
 
@@ -1107,11 +1107,11 @@ func getIntern(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	
+
 	var intern Intern
 	query := "SELECT id, name, email, department FROM interns WHERE id = ?"
 	err = db.DB.QueryRow(query, id).Scan(&intern.ID, &intern.Name, &intern.Email, &intern.Department)
-		
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Intern not found"})
@@ -1120,7 +1120,7 @@ func getIntern(c *gin.Context) {
 		}
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, intern)
 }
 
@@ -1128,12 +1128,12 @@ func getIntern(c *gin.Context) {
 func getHospital(c *gin.Context) {
 	// For this demo, we'll use a hardcoded hospital since it's a singleton
 	hospital := Hospital{
-		Name: "CareHub Hospital",
-		Address: "789 Health Ave, Metropolis, USA",
-		Email: "info@carehub.com",
-		Phone: "555-111-2222",
+		Name:        "CareHub Hospital",
+		Address:     "789 Health Ave, Metropolis, USA",
+		Email:       "info@carehub.com",
+		Phone:       "555-111-2222",
 		Description: "Modern hospital with the best medical team in the region.",
 	}
-	
+
 	c.JSON(http.StatusOK, hospital)
 }

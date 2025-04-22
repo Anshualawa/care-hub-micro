@@ -1,4 +1,3 @@
-
 module carehub-microservice
 
 go 1.19
